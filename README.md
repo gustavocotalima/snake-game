@@ -1,1 +1,1 @@
-A simple, web browser, snake game
+A simple web browser snake game
