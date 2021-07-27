@@ -1,0 +1,191 @@
+<html>
+	<head>
+		<style>
+			.cobrinha{
+            width:20px;
+            height:20px;
+            background-color: darkgray;
+            border: 1px dashed black;
+            position: absolute;
+			top:50px;
+			}
+			.comida{
+            width:20px;
+            height:20px;
+            background-color: red;
+            border: 1px solid black;
+            position:absolute;
+			top:50px;
+			}
+			.mapa{
+			width:200px;
+			height:200px;
+			background-color: white;
+            border: 2px solid black;
+            position:absolute;
+			left:10px;
+			top:50px;
+			}
+		</style>
+		
+	</head>
+	<body onkeydown="mudarSentido(event)">
+		<div class="mapa" id="mapa"></div>
+		<div class="cobrinha" id="div0"></div>
+		<div class="comida" id="comida"></div>
+		<div class="score">
+			<input type="text" id="score" value="0" disabled>
+		</div>
+		<script>
+			const TAM_DIV = 20; //tamanho do quadradinho das divs
+			const QTD_QUADRADOS = 10; //quantos quadradinhos no jogo
+			
+			//posicao da comida
+			var posicaoComidaX = 0, posicaoComidaY = 0;
+			
+			//declarando um array que vai conter
+			//todas as divs
+			var divs = [];
+			
+			//posicao da cabeça e das divs da cobra
+			var posicoesX = [], posicoesY = [];
+			
+			//variaveis para guardar o sentido que é pra mover,
+			// no começo, pra direita
+			var sentidoX = 1, sentidoY = 0;
+			
+			//variavel de score
+			var pontuacao = 0;
+			
+			//chamar mover repetidas vezes a cada 300ms
+			setInterval(function(){mover()}, 200);
+			
+			function achouComida(){
+				//atualizar, nova posicao
+				posicaoComidaX = Math.floor(Math.random()*QTD_QUADRADOS)*TAM_DIV;
+				posicaoComidaY = Math.floor(Math.random()*QTD_QUADRADOS)*TAM_DIV;
+				
+				//mudar/atualizar a posicao no html
+				document.getElementById("comida").style.left = 10+posicaoComidaX + "px";
+				document.getElementById("comida").style.top = 50+posicaoComidaY + "px";
+				
+				//aumentar a cauda da cobrinha
+				//criar nova div
+				var novaDiv = document.createElement("div");
+				novaDiv.className = "cobrinha";//coloca essa nova div como da classe "cobrinha" definida no css
+				//coloca a posição em baixo da cabeça da cobra
+				novaDiv.style.left = divs[0].style.left;
+				novaDiv.style.top = divs[0].style.top;
+				document.body.appendChild(novaDiv);//coloca a div no documento html
+				divs.push(novaDiv);//adiciona a div no vetor de divs interno do javascript
+				//alert(divs.length + "hehe");
+				pontuacao++;
+				document.getElementById("score").value=pontuacao;
+			}
+			
+			function iniciar(){
+				//preencher a cabeça no array de divs
+				divs[0] = document.getElementById("div0");	
+				posicoesX[0] = 0; posicoesY[0] = 0;
+				
+				
+				
+				//posicao inicial da comida
+				posicaoComidaX = Math.floor(Math.random()*QTD_QUADRADOS)*TAM_DIV;
+				posicaoComidaY = Math.floor(Math.random()*QTD_QUADRADOS)*TAM_DIV;
+				
+				//mudar/atualizar a posicao no html
+				document.getElementById("comida").style.left = 10+posicaoComidaX + "px";
+				document.getElementById("comida").style.top = 50+posicaoComidaY + "px";
+				
+			}
+			
+			function reiniciar() {
+				posicoesX = [];
+				posicoesY = [];
+				divs = [];
+				sentidoX = 1;
+				sentidoY = 0;
+				pontuacao = 0;
+				document.getElementById("score").value=pontuacao;
+				const elements = document.getElementsByClassName("cobrinha");
+				while (elements.length > 1) elements[1].remove();
+				iniciar();
+			}
+			
+			function mover(){//move a cabeça e a cobra pro
+				if (divs.length == 0){//primeiro acesso
+					iniciar();
+				}
+				
+				// sentido estabelecido
+				var posXAnterior = 0, posYAnterior = 0;
+				for (var i=divs.length-1; i>=0; i--){
+					
+					if (posicoesX[i] == undefined){//se ainda não preenchido, preencha com 0
+						posicoesX[i] = 0; posicoesY[i] = 0;
+					}
+					
+					if (i!=0){//se nao é a cabeça
+						posicoesX[i] = posicoesX[i-1];
+						posicoesY[i] = posicoesY[i-1];
+						}else {
+						posicoesX[i] += TAM_DIV * sentidoX;
+						posicoesY[i] += TAM_DIV * sentidoY;
+					}
+					//atualizar nos elementos html as posicoes
+					divs[i].style.left = 10+posicoesX[i] + 'px';
+					divs[i].style.top = 50+posicoesY[i] + 'px';
+				}
+				
+				//checar se encontrou a comida
+				if (posicoesX[0] == posicaoComidaX &&
+				posicoesY[0] == posicaoComidaY){//achou comida
+					achouComida();
+				}
+				if (checarMorte(posicoesX[0], posicoesY[0])) {
+					reiniciar();
+				}
+			}
+			
+			//funcao que checa a morte
+			function checarMorte (x, y) {
+				//se saiu do mapa
+				if (x>(QTD_QUADRADOS*TAM_DIV)-20 || x<0 || y>(QTD_QUADRADOS*TAM_DIV)-20 || y<0){
+					return true;
+				}
+				
+				for (var i=divs.length-1; i>0; i--){
+					//se comeu algum membro
+					if (x == posicoesX[i] && y == posicoesY[i]){
+						return true;
+					}
+				}
+				
+				return false;
+			}
+			
+			//altera o sentido
+			function mudarSentido(event){
+				switch (event.keyCode) {
+					case 37: //esquerda
+					sentidoX = -1;
+					sentidoY = 0;
+					break;
+					case 38://cima
+					sentidoX = 0;
+					sentidoY = -1;
+					break;
+					case 39://direita
+					sentidoX = 1;
+					sentidoY = 0;
+					break;
+					case 40://baixo
+					sentidoX = 0;
+					sentidoY = 1;
+					break;
+				}
+			} 
+		</script>
+	</body>
+</html>
