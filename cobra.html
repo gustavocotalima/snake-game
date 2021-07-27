@@ -81,7 +81,6 @@
 				novaDiv.style.top = divs[0].style.top;
 				document.body.appendChild(novaDiv);//coloca a div no documento html
 				divs.push(novaDiv);//adiciona a div no vetor de divs interno do javascript
-				//alert(divs.length + "hehe");
 				pontuacao++;
 				document.getElementById("score").value=pontuacao;
 			}
@@ -98,6 +97,11 @@
 				//mudar/atualizar a posicao no html
 				document.getElementById("comida").style.left = 10+posicaoComidaX + "px";
 				document.getElementById("comida").style.top = 50+posicaoComidaY + "px";
+
+				//altera a velocidade de execução para a inicial
+				velocidade = 200;
+				clearInterval(tick);
+				tick = setInterval(function(){mover()}, velocidade);
 				
 			}
 			
@@ -111,9 +115,6 @@
 				document.getElementById("score").value=pontuacao;
 				const elements = document.getElementsByClassName("cobrinha");
 				while (elements.length > 1) elements[1].remove();
-				velocidade = 200;
-				clearInterval(tick);
-				tick = setInterval(function(){mover()}, velocidade);
 			}
 			
 			function mover(){//move a cabeça e a cobra pro
