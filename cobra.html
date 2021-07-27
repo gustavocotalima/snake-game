@@ -57,8 +57,11 @@
 			//variavel de score
 			var pontuacao = 0;
 			
-			//chamar mover repetidas vezes a cada 300ms
-			setInterval(function(){mover()}, 200);
+			//velocidade de execução do codigo
+			var velocidade = 200;
+
+			//chamar mover repetidas vezes
+			tick = setInterval(function(){mover()}, velocidade);
 			
 			function achouComida(){
 				//atualizar, nova posicao
@@ -86,9 +89,7 @@
 			function iniciar(){
 				//preencher a cabeça no array de divs
 				divs[0] = document.getElementById("div0");	
-				posicoesX[0] = 0; posicoesY[0] = 0;
-				
-				
+				posicoesX[0] = 0; posicoesY[0] = 0;				
 				
 				//posicao inicial da comida
 				posicaoComidaX = Math.floor(Math.random()*QTD_QUADRADOS)*TAM_DIV;
@@ -110,6 +111,9 @@
 				document.getElementById("score").value=pontuacao;
 				const elements = document.getElementsByClassName("cobrinha");
 				while (elements.length > 1) elements[1].remove();
+				velocidade = 200;
+				clearInterval(tick);
+				tick = setInterval(function(){mover()}, velocidade);
 				iniciar();
 			}
 			
@@ -142,6 +146,11 @@
 				if (posicoesX[0] == posicaoComidaX &&
 				posicoesY[0] == posicaoComidaY){//achou comida
 					achouComida();
+
+					//altera a velocidade
+					clearInterval(tick);
+					velocidade -= velocidade * 0.02;
+					tick = setInterval(function(){mover()}, velocidade);
 				}
 				if (checarMorte(posicoesX[0], posicoesY[0])) {
 					reiniciar();
